@@ -4,6 +4,11 @@ class uABS:
     def __init__(self, p):
         self.p = p
 
+    def prepare(self):
+        # funkcja zliczająca alfabet i prawdopodobieństwo
+        pass
+
+
     def encode(self, text):
         x = 1
         for sign in text:
