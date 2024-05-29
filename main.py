@@ -1,13 +1,13 @@
-from uABS import uABS
+import src.rANS as r_ans
+import src.tANS as t_ans
+import src.uANS as u_ans
 
-if __name__ == '__main__':
-    # KiK - Projekt - ANS
 
-    # TEST uABS
-    string = "10011"
-    x = uABS(p=3/10)
-    encoded = x.encode(string)
-    decoded = x.decode(encoded)
-    print("Encoded: ", encoded)
-    print("Decoded: ", decoded)
+class Main:
+    @staticmethod
+    def main() -> None:
+        print("Hello World!")
 
+
+if __name__ == "__main__":
+    Main.main()
