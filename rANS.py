@@ -4,7 +4,7 @@ class rANS_old:
         self.proba = []
         self.bagno = {}
         self.proba_d = {}
-        self.count = 1
+        self.range = 1
 
         self.encoded = 1
         self.decoded = ""
@@ -18,14 +18,14 @@ class rANS_old:
     def function(self):
         tmp = 0
         bagno = 1
-        self.count = 0
+        self.range = 0
         for i in range(len(self.literki)):
             self.bagno[self.literki[i]] = [tmp + bagno, bagno]
             tmp = tmp + self.proba[i]
             self.proba_d[self.literki[i]] = self.proba[i]
             bagno = bagno % 1
 
-        self.count = tmp
+        self.range = tmp
 
     def code(self, message):
         val = 1
@@ -35,7 +35,7 @@ class rANS_old:
             print(tmp)
             r = (val - 1 + self.bagno[symbol][1]) % self.proba_d[symbol] + 1 - self.bagno[symbol][1]
             print(r)
-            tmp = tmp * self.count + r + self.bagno[symbol][0]
+            tmp = tmp * self.range + r + self.bagno[symbol][0]
             print(tmp)
             val = tmp
         self.encoded = val
@@ -47,7 +47,7 @@ class rANS_old:
     def show_bagno(self):
         print("offset ", self.bagno)
         print("proba", self.proba_d)
-        print("range_len", self.count)
+        print("range_len", self.range)
 
 
 ###################
@@ -58,7 +58,7 @@ class rANS:
         self.offset = {}
         self.proba_d = {}
         self.decode_d = {}
-        self.count = 1
+        self.range = 1
 
         self.encoded = 1
         self.decoded = ""
@@ -72,29 +72,30 @@ class rANS:
     def function(self):
         tmp = 0
 
-        self.count = 0
+        self.range = 0
         for i in range(len(self.literki)):
             self.offset[self.literki[i]] = tmp
             tmp = tmp + self.proba[i]
             self.proba_d[self.literki[i]] = self.proba[i]
 
-        self.count = tmp
+        self.range = tmp
         tmpi = 0
         for l in self.literki:
             for _ in range(self.proba_d[l]):
-                tmpi = tmpi + 1
                 self.decode_d[tmpi] = l
+                tmpi = (tmpi + 1)
+
 
 
     def code(self, message):
-        val = self.count
+        val = self.range
         print(message, "------------")
         for symbol in message:
             tmp = val // self.proba_d[symbol]
             print(tmp)
             r = val % self.proba_d[symbol]
             print(r)
-            tmp = tmp * self.count + self.offset[symbol] + r
+            tmp = tmp * self.range + self.offset[symbol] + r
             print(tmp)
             val = tmp
         self.encoded = val
@@ -102,14 +103,21 @@ class rANS:
 
     def unode(self):
         decoded = ""
-        while self.encoded > self.count:
-            tmp = self.decode_d[decoded % self.count]
-            decoded = tmp + decoded
+        while self.encoded > self.range:
+            symbol = self.decode_d[self.encoded % self.range]
+            decoded = symbol + decoded
+
+            completedevision = self.encoded // self.range
+            wholesteps = completedevision * self.proba_d[symbol]
+            fractionalsteps = self.encoded % self.range - self.offset[symbol]
+            self.encoded = wholesteps + fractionalsteps
+        self.decoded = decoded
+        return decoded
 
     def show_bagno(self):
         print("offset ", self.offset)
         print("proba", self.proba_d)
-        print("range_len", self.count)
+        print("range_len", self.range)
         print("decode_d", self.decode_d)
 
 
@@ -128,4 +136,5 @@ rans.set_alfabet(l)
 rans.set_proba(p)
 rans.function()
 rans.show_bagno()
-print('|', rans.code("ABC"))
+print('encoded |', rans.code("ABBA"))
+print('decoded |', rans.unode())
