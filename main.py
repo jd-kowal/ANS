@@ -6,7 +6,8 @@ import src.uANS as u_ans
 class Main:
     @staticmethod
     def main() -> None:
-        print("Hello World!")
+        """An example of using tANS API. As an argument please input path to file in which you have message to compress"""
+        t_ans.TableANSEncodingAPI("sample_data").useTableANSEncDec()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict
 import random
 
@@ -11,6 +12,9 @@ class DistributionTable:
         self._L = self._sum_symbols()
         self._I = self._enumerate_appearances()
 
+        if self._L !=  2 ** math.ceil(math.log2(len(message))):
+            raise ValueError("Len of a message must be a power of 2.")
+
         self._initialize()
 
     def __str__(self) -> str:
@@ -19,6 +23,7 @@ class DistributionTable:
         symbol = " | ".join(f"{str(item):<{max_len}}" for item in self._table['symbol'])
         x_tmp = " | ".join(f"{str(item):<{max_len}}" for item in self._table['x_tmp'])
         nBits = " | ".join(f"{str(item):<{max_len}}" for item in self._table['nBits'])
+        newX = " | ".join(f"{str(item):<{max_len}}" for item in self._table['newX'])
 
         return f"""
         DISTRIBUTION TABLE
@@ -26,6 +31,7 @@ class DistributionTable:
         | symbol | {symbol} |
         | x_tmp  | {x_tmp} |
         | nBits  | {nBits} |
+        | newX   | {newX} |
         """
 
     def get_frequencies_sum(self) -> int:
@@ -56,14 +62,14 @@ class DistributionTable:
         return [Ls for Ls in range(self._L, 2 * self._L)]
 
     def _redistribute_symbols(self) -> list[int | str]:
-        symbols = []
+        symbols: list[int | str] = []
         for symbol, freq in self._symbol_distribution.items():
             symbols.extend([symbol] * freq)
-        # random.shuffle(symbols)
+        random.shuffle(symbols)
         return symbols
 
     def _set_x_tmp(self, symbols: list[int | str]) -> list[int]:
-        x_tmp = []
+        x_tmp: list[int] = []
         symbol_distribution = self._symbol_distribution.copy()
         for symbol in symbols:
             x_tmp.append(symbol_distribution[symbol])
@@ -71,7 +77,7 @@ class DistributionTable:
         return x_tmp
 
     def _set_nbits(self, x_tmp: list[int]) -> list[int]:
-        nbits = []
+        nbits: list[int] = []
         for symbol in x_tmp:
             counter, tmp_symbol = 0, symbol
             while tmp_symbol < self._L:
@@ -80,11 +86,19 @@ class DistributionTable:
             nbits.append(counter)
         return nbits
 
+    def _set_new_x(self, x_tmp: list[int], nbits: list[int]) -> list[int]:
+        new_x: list[int] = []
+        for idx, symbol in enumerate(x_tmp):
+            new_x.append(symbol << nbits[idx])
+        return new_x
+
     def _initialize_table(self) -> None:
         self._table['x_'] = self._I
         self._table['symbol'] = self._redistribute_symbols()
         self._table['x_tmp'] = self._set_x_tmp(self._table['symbol'])
         self._table['nBits'] = self._set_nbits(self._table['x_tmp'])
+        self._table['newX'] = self._set_new_x(self._table['x_tmp'], self._table['nBits'])
 
     def _initialize(self) -> None:
         self._initialize_table()
+

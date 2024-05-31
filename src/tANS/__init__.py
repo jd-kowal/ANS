@@ -1,4 +1,4 @@
-from .tANS import *
+from .api import TableANSEncodingAPI
 
 __version__ = '0.0.1'
 __author__ = 'Hubert Mąka'
