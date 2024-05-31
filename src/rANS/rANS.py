@@ -6,14 +6,28 @@ class rANS_old:
         self.proba_d = {}
         self.range = 1
 
+        self.file_string = ""
         self.encoded = 1
         self.decoded = ""
+
+        self.file_path = ""
+
+        self.char_occurrences = {}
 
     def set_proba(self, probablilities):
         self.proba = probablilities
 
     def set_alfabet(self, alfabet):
         self.literki = alfabet
+
+    def read_file(self, file_path):
+        self.file_path = file_path
+        file_content = ""
+        with open(self.file_path, 'r') as file:
+            file_content = file.read()
+        self.file_string = file_content
+        for char in self.file_string:
+            self.char_occurrences[char] = self.char_occurrences.get(char, 0) + 1
 
     def function(self):
         tmp = 0
@@ -59,6 +73,8 @@ class rANS:
         self.proba_d = {}
         self.decode_d = {}
         self.range = 1
+        self.char_occurrences = {}
+        self.file_path = ""
 
         self.encoded = 1
         self.decoded = ""
@@ -69,6 +85,24 @@ class rANS:
     def set_alfabet(self, alfabet):
         self.literki = alfabet
 
+    def read_file(self, file_path):
+        self.file_path = file_path
+        file_content = ""
+        with open(self.file_path, 'r') as file:
+            file_content = file.read()
+        self.decoded = file_content
+        for char in file_content:
+            self.char_occurrences[char] = self.char_occurrences.get(char, 0) + 1
+        print("char_occurances ", self.char_occurrences)
+        tmp = 0
+        self.literki = []
+        self.proba = []
+        for key in self.char_occurrences:
+            tmp = tmp + self.char_occurrences[key]
+            self.literki.append(key)
+            self.proba.append(self.char_occurrences[key])
+        self.range = tmp
+        self.function()
     def function(self):
         tmp = 0
 
@@ -85,8 +119,6 @@ class rANS:
                 self.decode_d[tmpi] = l
                 tmpi = (tmpi + 1)
 
-
-
     def code(self, message):
         val = self.range
         print(message, "------------")
@@ -99,6 +131,7 @@ class rANS:
             print(tmp)
             val = tmp
         self.encoded = val
+        self.decoded = ""
         return val
 
     def unode(self):
@@ -112,6 +145,7 @@ class rANS:
             fractionalsteps = self.encoded % self.range - self.offset[symbol]
             self.encoded = wholesteps + fractionalsteps
         self.decoded = decoded
+        self.encoded = 1
         return decoded
 
     def show_bagno(self):
@@ -132,9 +166,13 @@ p = [5, 2, 1]
 # print('|', rans.code(""))
 
 rans = rANS()
-rans.set_alfabet(l)
-rans.set_proba(p)
-rans.function()
-rans.show_bagno()
+# rans.set_alfabet(l)
+# rans.set_proba(p)
+# rans.function()
+# rans.show_bagno()
+# print('encoded |', rans.code("ABBA"))
+# print('decoded |', rans.unode())
+rans.read_file("test.txt")
+#rans.show_bagno()
 print('encoded |', rans.code("ABBA"))
 print('decoded |', rans.unode())
