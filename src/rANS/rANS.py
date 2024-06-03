@@ -1,3 +1,6 @@
+import math
+
+
 class rANS_old:
     def __init__(self):
         self.literki = []
@@ -85,6 +88,26 @@ class rANS:
     def set_alfabet(self, alfabet):
         self.literki = alfabet
 
+    def scale_probabilities(self):
+        self.range = 2 ** len(self.proba)
+        original_sum = sum(self.proba)
+        scaling_factor = self.range / original_sum
+        scaled_table = [num * scaling_factor for num in self.proba]
+        self.proba = [max(round(num), 1) for num in scaled_table]
+        rounded_sum = sum(self.proba)
+        diff = self.range - rounded_sum
+        while diff != 0:
+            for i in range(len(self.proba)):
+                if diff == 0:
+                    break
+                if diff > 0:
+                    self.proba[i] += 1
+                    diff -= 1
+                elif diff < 0 and self.proba[i] > 1:
+                    self.proba[i] -= 1
+                    diff += 1
+        return self.proba
+
     def read_file(self, file_path):
         self.file_path = file_path
         file_content = ""
@@ -102,7 +125,9 @@ class rANS:
             self.literki.append(key)
             self.proba.append(self.char_occurrences[key])
         self.range = tmp
+        self.scale_probabilities()
         self.function()
+
     def function(self):
         tmp = 0
 
@@ -119,22 +144,19 @@ class rANS:
                 self.decode_d[tmpi] = l
                 tmpi = (tmpi + 1)
 
-    def code(self, message):
+    def encode(self):
         val = self.range
-        print(message, "------------")
-        for symbol in message:
+        print(self.decoded, "------------")
+        for symbol in self.decoded:
             tmp = val // self.proba_d[symbol]
-            print(tmp)
             r = val % self.proba_d[symbol]
-            print(r)
             tmp = tmp * self.range + self.offset[symbol] + r
-            print(tmp)
             val = tmp
         self.encoded = val
         self.decoded = ""
         return val
 
-    def unode(self):
+    def decode(self):
         decoded = ""
         while self.encoded > self.range:
             symbol = self.decode_d[self.encoded % self.range]
@@ -152,27 +174,12 @@ class rANS:
         print("offset ", self.offset)
         print("proba", self.proba_d)
         print("range_len", self.range)
-        print("decode_d", self.decode_d)
+        #print("decode_d", self.decode_d)
 
-
-l = ["A", "B", "C"]
-p = [5, 2, 1]
-
-# rans = rANS_old()
-# rans.set_alfabet(l)
-# rans.set_proba(p)
-# rans.function()
-# rans.show_bagno()
-# print('|', rans.code(""))
 
 rans = rANS()
-# rans.set_alfabet(l)
-# rans.set_proba(p)
-# rans.function()
-# rans.show_bagno()
-# print('encoded |', rans.code("ABBA"))
-# print('decoded |', rans.unode())
+
 rans.read_file("test.txt")
-#rans.show_bagno()
-print('encoded |', rans.code("ABBA"))
-print('decoded |', rans.unode())
+rans.show_bagno()
+print('encoded |', rans.encode())
+print('decoded |', rans.decode())
